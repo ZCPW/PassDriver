@@ -1,0 +1,80 @@
+;
+; PassDriver.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: specify appropriate Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=PassDriver.cat
+DriverVer = 02/17/2022,15.14.14.984
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+PassDriver_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+PassDriver.sys  = 1,,
+;
+
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%PassDriver.DeviceDesc%=PassDriver_Device, Root\PassDriver ; TODO: edit hw-id
+
+[PassDriver_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+PassDriver.sys
+
+;-------------- Service installation
+[PassDriver_Device.NT.Services]
+AddService = PassDriver,%SPSVCINST_ASSOCSERVICE%, PassDriver_Service_Inst
+
+; -------------- PassDriver driver install sections
+[PassDriver_Service_Inst]
+DisplayName    = %PassDriver.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\PassDriver.sys
+
+;
+;--- PassDriver_Device Coinstaller installation ------
+;
+
+[PassDriver_Device.NT.CoInstallers]
+AddReg=PassDriver_Device_CoInstaller_AddReg
+CopyFiles=PassDriver_Device_CoInstaller_CopyFiles
+
+[PassDriver_Device_CoInstaller_AddReg]
+;
+
+
+[PassDriver_Device_CoInstaller_CopyFiles]
+;
+
+
+[PassDriver_Device.NT.Wdf]
+KmdfService =  PassDriver, PassDriver_wdfsect
+[PassDriver_wdfsect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "PassDriver Installation Disk"
+PassDriver.DeviceDesc = "PassDriver Device"
+PassDriver.SVCDESC = "PassDriver Service"
